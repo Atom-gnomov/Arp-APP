@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ project.Name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0b0f12;
+            color: #dfe7ea;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            width: 100%;
+            text-align: center;
+            padding: 30px 10px 20px 10px;
+            font-size: 28px;
+            font-weight: 700;
+            color: #bfe0ff;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 800px;
+            margin: 20px 0;
+        }
+        .image-placeholder {
+            width: 100%;
+            height: 700px;
+            background: url("https://via.placeholder.com/800x300?text=Network+Graph") center/cover no-repeat;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .buttons a {
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            background-color: #0a8bd6;
+            color: white;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .buttons a:hover {
+            background-color: #076aa8;
+        }
+        .info {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background-color: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.04);
+            font-size: 18px;
+        }
+        .info div {
+            text-align: center;
+        }
+        .info label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            color: #bfe0ff;
+        }
+    </style>
+</head>
+<body>
+    <header>{{ project.Name }}</header>
+
+    <div class="content">
+
+        <div class="image-placeholder"></div>
+
+
+        <div class="buttons">
+            <a href="">Generate Graph</a>
+            <a href="{% url 'MainApp:network_create' project_id=project.pk %}">Add Network</a>
+            <a href="{% url 'MainApp:project_networks' project.pk %}">List of Networks</a>
+        </div>
+
+
+        <div class="info">
+            <div>
+                <label>Number of Networks</label>
+                <span>{{ project.NumberOfNetworks|default:"0" }}</span>
+            </div>
+            <div>
+                <label>Number of Nodes</label>
+                <span>{{ project.NumberOfNodes|default:"0" }}</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

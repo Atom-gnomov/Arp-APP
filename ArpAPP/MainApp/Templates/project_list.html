@@ -1,0 +1,207 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Projects</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    /* Page layout */
+    :root{
+      --gap: 12px;
+      --tile-size: calc((100vw - (var(--gap) * 5)) / 4); /* four across with gaps */
+      --tile-max: 220px;
+    }
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      margin:18px;
+      background:#0b0f12;
+      color:#dfe7ea;
+    }
+    h1{ margin: 0 0 14px 0; font-size:20px; color:#bfe0ff; }
+
+    /* Grid container */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--gap);
+      align-items: stretch;
+      justify-items: stretch;
+    }
+
+    /* Responsive: switch to fewer columns on small screens */
+    @media (max-width: 1100px){
+      .grid{ grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 800px){
+      .grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px){
+      .grid{ grid-template-columns: repeat(1, 1fr); }
+    }
+
+    /* Tile (square-ish) */
+    .tile {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 8px;
+      padding: 12px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 0;
+      aspect-ratio: 1 / 1; /* keeps square shape in modern browsers */
+      transition: transform .12s ease, box-shadow .12s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+    .tile:focus,
+    .tile:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.03) inset;
+      outline: none;
+    }
+
+    .tile .title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 8px;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+    .tile .meta {
+      font-size: 0.85rem;
+      color: #9fb7c7;
+      margin-bottom: 8px;
+    }
+    .tile .desc {
+      font-size: 0.9rem;
+      color: #d0e6ee;
+      flex: 1 1 auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tile .foot {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 10px;
+    }
+    .btn-small {
+      padding:6px 10px;
+      border-radius:6px;
+      background: rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.04);
+      color: #cfeffb;
+      font-size:0.85rem;
+      text-decoration:none;
+    }
+
+    /* Pagination */
+    .pagination {
+      display:flex;
+      gap:8px;
+      margin-top:18px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .page-link {
+      display:inline-block;
+      padding:8px 12px;
+      border-radius:6px;
+      text-decoration:none;
+      color:#cfeffb;
+      border:1px solid rgba(255,255,255,0.04);
+      background: rgba(0,0,0,0.2);
+    }
+    .page-link.current {
+      background:#0a8bd6;
+      color:white;
+      font-weight:600;
+      border-color: rgba(255,255,255,0.06);
+    }
+    .page-link.disabled{
+      opacity:0.35;
+      pointer-events:none;
+    }
+
+    /* small footer text */
+    .info { margin-top:10px; font-size:0.85rem; color:#9fb7c7; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Projects</h1>
+  </header>
+
+  <main>
+    <!-- grid -->
+    <div class="grid" role="list">
+      {% for project in projects %}
+        {# Use link to project detail if you have one; otherwise use a div #}
+        <a href="{% url 'MainApp:project_detail' project.pk %}" class="tile" role="listitem" tabindex="0" aria-label="Project {{ project }}">
+          <div>
+            <div class="title">{{ project.name|default:project.pk }}</div>
+          </div>
+          <div class="foot">
+            <span class="meta">#{{ project.pk }}</span>
+            <span class="btn-small">Open</span>
+          </div>
+        </a>
+      {% empty %}
+        <div style="color:#a9c6d6">No projects found.</div>
+      {% endfor %}
+    </div>
+
+    <!-- pagination controls -->
+    {% if is_paginated %}
+      <nav class="pagination" aria-label="Pagination">
+        {# Previous page #}
+        {% if page_obj.has_previous %}
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}">← Prev</a>
+        {% else %}
+          <span class="page-link disabled">← Prev</span>
+        {% endif %}
+
+        {# Page numbers: render a window of pages #}
+        {% for num in paginator.page_range %}
+          {% if paginator.num_pages > 12 %}
+            {# show condensed range: current ±2 + first + last #}
+            {% if num == 1 or num == paginator.num_pages or num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+              {% if num == page_obj.number %}
+                <span class="page-link current">{{ num }}</span>
+              {% else %}
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+              {% endif %}
+            {% elif num == 2 and page_obj.number > 4 %}
+              <span class="page-link disabled">…</span>
+            {% elif num == paginator.num_pages|add:"-1" and page_obj.number < paginator.num_pages|add:"-3" %}
+              <span class="page-link disabled">…</span>
+            {% endif %}
+          {% else %}
+            {% if num == page_obj.number %}
+              <span class="page-link current">{{ num }}</span>
+            {% else %}
+              <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+
+        {# Next page #}
+        {% if page_obj.has_next %}
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next →</a>
+        {% else %}
+          <span class="page-link disabled">Next →</span>
+        {% endif %}
+      </nav>
+
+      <div class="info">
+        Page {{ page_obj.number }} of {{ paginator.num_pages }} — showing
+        {{ projects|length }} of {{ paginator.count }} total projects.
+      </div>
+    {% endif %}
+  </main>
+</body>
+</html>
