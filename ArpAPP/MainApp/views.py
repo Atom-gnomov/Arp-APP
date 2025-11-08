@@ -234,32 +234,51 @@ class ArpTableCreateNodesView(View):
                     continue
 
                 try:
-                    # dedupe by MAC (recommended)
+                    # Lookup vendor and guessed device type from the OUI CSV
+                    vendor, guessed_type = get_vendor_and_device_type(mac)
+
+                    # Create or get Node — include vendor/type in defaults so new rows are populated
                     node, created = Node.objects.get_or_create(
                         MacAddress=mac,
-                        defaults={'IpAddress': ip, 'Vendor': None, 'Type': None}
+                        defaults={'IpAddress': ip, 'Vendor': vendor, 'Type': guessed_type}
                     )
 
-                    # if exists but IP changed -> update
-                    if not created and node.IpAddress != ip:
-                        node.IpAddress = ip
-                        node.save(update_fields=['IpAddress'])
+                    # If node already existed, update IpAddress/Vendor/Type if necessary
+                    updated_fields = []
+                    if not created:
+                        if node.IpAddress != ip:
+                            node.IpAddress = ip
+                            updated_fields.append('IpAddress')
 
-                    # attach to network (idempotent)
+                        # Prefer keeping manual overrides; only set vendor/type if missing or different
+                        if vendor and (not node.Vendor or node.Vendor != vendor):
+                            node.Vendor = vendor
+                            updated_fields.append('Vendor')
+                        if guessed_type and (not node.Type or node.Type != guessed_type):
+                            node.Type = guessed_type
+                            updated_fields.append('Type')
+
+                        if updated_fields:
+                            node.save(update_fields=updated_fields)
+
+                    # Attach to network (idempotent). Record whether it was newly attached.
                     already_attached = network.Nodes.filter(pk=node.pk).exists()
                     network.Nodes.add(node)
                     attached = not already_attached
                     if attached:
                         diag['nodes_attached_count'] += 1
 
-                    diag['nodes_created'].append({'ip': ip, 'mac': mac, 'created': bool(created), 'attached': attached})
-
-                    # record node object for this interface for observable relation building
-                    nodes_by_iface.setdefault(current_iface, []).append(node)
-
+                    diag['nodes_created'].append({
+                        'ip': ip,
+                        'mac': mac,
+                        'created': bool(created),
+                        'attached': attached,
+                        'vendor': node.Vendor,
+                        'type': node.Type,
+                    })
                 except Exception as e:
                     diag['errors'].append(str(e))
-                    logger.exception("Error creating/attaching node")
+                    logger.exception("Error creating/attaching node with vendor/type")
             else:
                 # collect some unmatched lines for diagnostics
                 if len(diag['samples']) < 8:
