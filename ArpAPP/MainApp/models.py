@@ -16,7 +16,7 @@ class Networks(models.Model):
 
 
 class Node(models.Model):
-    MacAddress = models.TextField()
+    MacAddress = models.TextField(blank=True, null=True)
     IpAddress = models.TextField()
     Vendor = models.TextField(blank=True, null=True)
     Type = models.TextField(blank=True, null=True)
