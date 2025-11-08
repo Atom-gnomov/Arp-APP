@@ -1,0 +1,18 @@
+{# arp_table_input.html #}
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Parse and Add</button>
+</form>
+
+{% if nodes_added %}
+  <h3>Processed nodes for network: {{ network.NetworkName }}</h3>
+  <ul>
+    {% for item in nodes_added %}
+      <li>{{ item.ip }} — {{ item.mac }} —
+        {% if item.created %}created{% else %}exists{% endif %} /
+        {% if item.attached %}attached to network{% else %}already attached{% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

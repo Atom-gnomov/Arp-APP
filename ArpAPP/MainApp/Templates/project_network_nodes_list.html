@@ -1,0 +1,9 @@
+<h2>Nodes in {{ network.Name }} of project {{ project.Name }}</h2>
+
+<ul>
+  {% for node in nodes %}
+    <li>{{ node.IpAddress }} - {{ node.MacAddress }}</li>
+  {% empty %}
+    <li>No nodes found</li>
+  {% endfor %}
+</ul>

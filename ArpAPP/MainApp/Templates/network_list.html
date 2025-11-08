@@ -47,8 +47,8 @@
                         <div class="meta">Mask: {{ network.NetworkMask|default:"N/A" }}</div>
                         <div class="meta">Nodes: {{ network.NumberOfNodes|default:"0" }}</div>
                          <div class="buttons">
-                             <a href="">Add Nodes</a>
-                             <a href="">List of Nodes</a>
+                             <a href="{% url 'MainApp:parse_arp' project_id=project.pk network_id=network.pk %}">Add Nodes</a>
+                             <a href="{% url 'MainApp:project_network_nodes_list' project_id=project.pk network_id=network.pk %}">List of Nodes</a>
                          </div>
                     </div>
                 </div>
