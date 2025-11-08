@@ -2,7 +2,7 @@
 
 <ul>
   {% for node in nodes %}
-    <li>{{ node.IpAddress }} - {{ node.MacAddress }}</li>
+    <li>{{ node.IpAddress }} - {{ node.MacAddress }} - {{ node.Vendor }} - {{ node.Type}}</li>
   {% empty %}
     <li>No nodes found</li>
   {% endfor %}
