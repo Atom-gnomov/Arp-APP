@@ -5,7 +5,7 @@ import os
 
 class Project(models.Model):
     Name = models.TextField(blank=True, null=True)
-    Networks = models.ManyToManyField('Networks', blank=True)  # use string
+    Networks = models.ManyToManyField('Networks', blank=True)
     NumberOfNetworks = models.IntegerField(blank=True, null=True)
     NumberOfNodes = models.IntegerField(blank=True, null=True)
 

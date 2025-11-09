@@ -95,7 +95,7 @@ _VENDOR_TO_TYPE_RULES = [
     (r'checkpoint', 'firewall'),
     (r'sony', 'client'),
     (r'ricoh', 'printer'),
-    (r'Routerboard.com', 'router')
+    (r'routerboard', 'router')
 
 ]
 
