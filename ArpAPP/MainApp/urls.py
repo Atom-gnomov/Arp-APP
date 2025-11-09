@@ -1,7 +1,8 @@
 from django.urls import path
 
 from MainApp import views
-from MainApp.views import ProjectView, ProjectCreateView, ProjectDetailView, NetworksCreateView, ProjectNetworksListView
+from MainApp.views import ProjectView, ProjectCreateView, ProjectDetailView, NetworksCreateView, \
+    ProjectNetworksListView, GenerateProjectGraphView
 
 from .views import ArpTableCreateNodesView, ProjectNetworksNodesListView
 
@@ -19,4 +20,5 @@ path(
     ProjectNetworksNodesListView.as_view(),
     name='project_network_nodes_list'
 ),
+path('project/<int:project_id>/graph/generate/', GenerateProjectGraphView.as_view(), name='project_graph_generate'),
 ]
